@@ -1,0 +1,40 @@
+{
+    "compilerOptions": {
+        "target": "es2018",
+        "module": "commonjs",
+        "sourceMap": true,
+        "outDir": "dist",
+        "strict": true,
+        "baseUrl": "./",
+        "skipLibCheck": true,
+        "paths": {
+            "@enums/*": ["src/enums/*"],
+            "@config/*": ["src/config/*"],
+            "@public/*": ["src/public/*"],
+            "@services": ["src/services"],
+            "@utility/*": ["src/utility/*"],
+            "@assemblers": ["src/assemblers"],
+            "@controllers": ["src/controllers"],
+            "@repository": ["src/repositories"],
+            "@middlewares": ["src/middlewares"],
+            "@requestType": ["src/types/request"],
+            "@responseType": ["src/types/response"],
+            "@exceptions": ["src/utility/exceptions"],
+            "@database": ["src/utility/database/PrismaSingleton"]
+        },
+        "lib": ["dom", "es6", "es2018", "esnext.asynciterable"],
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "types": [
+            "node"
+        ],
+
+        "importHelpers": true,
+        "removeComments": true,
+        "resolveJsonModule": true,
+        "moduleResolution": "node",
+    },
+    "exclude": ["node_modules"],
+    "include": ["./src/**/*.ts", "src/types/requests"]
+}

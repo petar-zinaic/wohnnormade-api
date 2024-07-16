@@ -1,0 +1,63 @@
+{
+  "name": "smart-drive-api",
+  "version": "1.0.0",
+  "description": "API for Smart Drive System",
+  "main": "app.js",
+  "keywords": [],
+  "author": "tismans95@gmail.com",
+  "license": "ISC",
+  "scripts": {
+    "development:local": "dotenv -e environments/.env.local -- nodemon",
+    "development:dev": "dotenv -e environments/.env.development -- nodemon",
+    "development:prod": "dotenv -e environments/.env.production -- nodemon",
+    "migrate:local": "dotenv -e environments/.env.local -- npx prisma migrate dev && npx prisma generate",
+    "migrate:dev": "dotenv -e environments/.env.development -- npx prisma migrate dev && npx prisma generate",
+    "migrate:prod": "dotenv -e environments/.env.production -- npx prisma migrate dev && npx prisma generate",
+    "start:local": "dotenv -e environments/.env.local -- node -r module-alias/register ./dist/server.js",
+    "start:dev": "dotenv -e environments/.env.development -- node -r module-alias/register ./dist/server.js",
+    "start:prod": "dotenv -e environments/.env.production -- node -r module-alias/register ./dist/server.js",
+    "build": "tsc --build tsconfig.json && npm run copy-public",
+    "copy-public": "cpx \"src/public/**/*\" dist/public"
+  },
+  "_moduleAliases": {
+    "@enums": "dist/enums",
+    "@config": "dist/config",
+    "@public": "dist/public",
+    "@utility": "dist/utility",
+    "@services": "dist/services",
+    "@repository": "dist/repositories",
+    "@assemblers": "dist/assemblers",
+    "@controllers": "dist/controllers",
+    "@middlewares": "dist/middlewares",
+    "@requestType": "dist/types/request",
+    "@responseType": "dist/types/response",
+    "@exceptions": "dist/utility/exceptions",
+    "@database": "dist/utility/database/PrismaSingleton"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.9.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
+    "dotenv-cli": "^7.3.0",
+    "express": "^4.18.2",
+    "joi": "^17.12.1",
+    "js-yaml": "^4.1.0",
+    "module-alias": "^2.2.3",
+    "nodemon": "^3.0.3",
+    "path": "^0.12.7",
+    "prisma": "^5.9.1",
+    "swagger-ui-express": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tslib": "^2.6.2",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/js-yaml": "^4.0.9",
+    "@types/swagger-ui-express": "^4.1.6",
+    "cpx": "^1.5.0"
+  }
+}

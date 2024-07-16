@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  title: SmartDrive API
+  version: 1.0.0
+servers:
+  - url: "/api"
+paths: {}
+components:
+  securitySchemes:
+    JWTAuth:
+      type: apiKey
+      in: header
+      name: authorization
+      description: Enter your Authentication Token obtained from the authentication endpoint
+  schemas:
+    BooleanResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        status:
+          type: boolean
+          default: true
+        error: 
+          type: object
+          default: {}
+    ErrorResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          default: {}
+        status:
+          type: boolean
+          default: false
+        error:
+          $ref: '#/components/schemas/HttpException'
+    HttpException: 
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+        internal_code:
+          type: string

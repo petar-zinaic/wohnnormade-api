@@ -1,0 +1,60 @@
+paths:
+  /users:
+    get:
+      summary: Lists paginated users
+      tags: [Users]
+
+      responses: 
+        200:
+          description: The list of the paginated users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserListResponse'
+        500:
+          description: Some internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    UserList:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The User ID in UUID format
+        first_name:
+          type: string
+          description: The first name of the user
+        last_name:
+          type: string
+          description: The last name of the user
+        email: 
+          type: string
+          description: The email of the user
+        created_at:
+          type: string
+          format: date
+          description: The creation date of the user
+        updated_at:
+          type: string
+          format: date
+          description: The last date user was modified 
+    UserListResponse:
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserList'
+        status:
+          type: boolean
+          default: true
+        error:
+          type: object
+          default: {}
