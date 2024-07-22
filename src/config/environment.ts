@@ -4,7 +4,7 @@ import { Environment } from "@enums/environment";
 
 import { MissingEnvironmentsException } from "@exceptions";
 
-const environment = process.env.NODE_ENV || Environment.LOCAL;
+const environment = process.env.NODE_ENV;
 
 dotenv.config({path: `./environments/${environment}`});
 
@@ -25,5 +25,8 @@ export default {
     server: {
         port: getEnvVariable("PORT", "3000"),
         environment: getEnvVariable("NODE_ENV", Environment.LOCAL)
+    },
+    database: {
+      url: getEnvVariable("DATABASE_URL")
     }
 }

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import { UserService } from "@services";
 
-import BaseController from "./BaseController";
+import BaseController from "../BaseController";
 
 import { formatPaginationOptionFromQuery } from "@utility/helpers/paginationHelper";
 
@@ -17,6 +17,6 @@ export default class UserController extends BaseController<UserService> {
         const paginationOption = formatPaginationOptionFromQuery(req.query);
         const result = await this._service.findAllPaginated(paginationOption);
         
-        this._responseHandler.processResponse<PaginatedResponse<UserListResponse>>(result, res);
+        this._responseHandler.processResponse<PaginatedResponse<UserListResponse>>(res, result);
     }
 }

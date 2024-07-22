@@ -1,4 +1,4 @@
-import BaseRepository from "./BaseRepository";
+import BaseRepository from "../BaseRepository";
 
 import { User } from "@prisma/client";
 import { PaginationOption } from "@requestType";

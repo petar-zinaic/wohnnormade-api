@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import UserRoutes from "./database/UserRoutes";
+import ContributeRoutes from "./contribute/ContributeRoutes";
 
 export default class AppRouter {
     private router: Router;
@@ -13,6 +14,7 @@ export default class AppRouter {
         this.router.get("/", (req, res) => res.send("Base API URL"));
 
         this.router.use("/users", new UserRoutes().routes);
+        this.router.use("/contribute", new ContributeRoutes().routes);
 
         return this.router;
     }

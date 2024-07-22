@@ -30,7 +30,7 @@ class Nexit {
         this.initializeResponseMiddlewares();
 
         //todo - we don't have database yet, currently it's for presentation purpose
-        // this.connectToDatabase();
+        this.connectToDatabase();
     }
 
     public listen(){

@@ -18,3 +18,14 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
+
+model Tennant {
+  id String   @id @default(uuid())
+  name String
+  surname String
+  city String
+  violation_type String
+  violation_description String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}

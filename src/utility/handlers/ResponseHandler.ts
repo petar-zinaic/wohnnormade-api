@@ -25,11 +25,12 @@ export default class ResponseHandler {
         res.status(error.status || HTTP_STATUS.INTERNAL).send(response || INTERNAL_CODE.UNHADLED_EXCEPTION);
     }
 
-    public processResponse<ResultType>(data: ResultType, res: Response){
-        const response = this.formatResponse(data);
-        
-        res.status(HTTP_STATUS.SUCCESS).send(response);
-    }
+    public processResponse<ResultType>(res: Response, data?: ResultType) {
+      const response = this.formatResponse(data);
+      const responseStatus = response.result ? HTTP_STATUS.SUCCESS : HTTP_STATUS.NO_CONTENT_SUCCESS;
+      
+      res.status(responseStatus).send(response);
+  }
 
     private logError(error: HttpException){
         const errorLocation = error.stack?.split('\n')[1].trim();

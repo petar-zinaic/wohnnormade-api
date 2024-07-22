@@ -1,6 +1,6 @@
 import { UserRepository } from "@repository";
 
-import BaseService from "./BaseService";
+import BaseService from "../BaseService";
 
 import { UserAssembler } from "@assemblers";
 
