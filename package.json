@@ -17,7 +17,8 @@
     "start:dev": "dotenv -e environments/.env.development -- node -r module-alias/register ./dist/server.js",
     "start:prod": "dotenv -e environments/.env.production -- node -r module-alias/register ./dist/server.js",
     "build": "tsc --build tsconfig.json && npm run copy-public",
-    "copy-public": "cpx \"src/public/**/*\" dist/public"
+    "copy-public": "cpx \"src/public/**/*\" dist/public",
+    "seed": "ts-node prisma/seed.ts"
   },
   "_moduleAliases": {
     "@enums": "dist/enums",
