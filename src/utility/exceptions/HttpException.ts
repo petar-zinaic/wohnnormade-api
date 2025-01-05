@@ -3,7 +3,6 @@ import { INTERNAL_CODE } from "@enums/exception";
 
 import { HttpExceptionDTO } from "@responseType";
 
-//todo - we should extand error classes to accept the value, req.body req.params so that logs make more sense
 export default class HttpException extends Error {
     public message: string;
     public status: HTTP_STATUS;

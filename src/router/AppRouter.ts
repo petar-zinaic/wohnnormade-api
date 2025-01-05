@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import ContributeRoutes from "./database/ContributeRoutes";
+import ContributeRoutes from "./contribute/ContributeRoutes";
 
 export default class AppRouter {
     private router: Router;

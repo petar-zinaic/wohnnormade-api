@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { PaginationOption } from "@requestType";
 import { PaginatedResponse } from "@responseType";
 
-export default abstract class BaseRepository {
+export default class BaseRepository {
     protected prismaClient: PrismaClient;
 
     constructor(){

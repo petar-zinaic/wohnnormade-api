@@ -13,4 +13,6 @@ model Tenant {
   surname String @unique
   violationType String
   description String
+  city String
+  country String
 }

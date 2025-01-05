@@ -1,4 +1,4 @@
-import {asyncHandler} from "@middlewares";
+import {asyncHandler, validateTennantInput} from "@middlewares";
 import BaseRoutes from "../BaseRoutes";
 
 import { ContributeController } from "src/controllers/contribute";
@@ -9,9 +9,8 @@ export default class ContributeRoutes extends BaseRoutes<ContributeController> {
 	}
 
   get routes() {
-    this._router.post("/create-tennant", asyncHandler(this._controller.createTennant));
+    this._router.post("/create-tennant", validateTennantInput, asyncHandler(this._controller.createTennant));
 
     return this._router;
   }
-
 }

@@ -4,20 +4,26 @@
     "name": "Petar",
     "surname": "Petrovic",
     "violationType": "Property Wracked",
-    "description": "No Description"
+    "description": "No Description",
+    "city": "Novi Sad",
+    "country": "Serbia"
   },
   {
     "id": 2,
     "name": "Nikola",
     "surname": "Dejanovic",
     "violationType": "Rent Not Payed",
-    "description": "No desc"
+    "description": "No desc",
+    "city": "Graz",
+    "country": "Austria"
   },
   {
     "id": 3,
     "name": "Aleksandra",
     "surname": "Nikolic",
     "violationType": "Property Wracked",
-    "description": "..."
+    "description": "...",
+     "city": "Graz",
+    "country": "Austria"
   }
 ]
