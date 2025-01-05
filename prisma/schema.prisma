@@ -7,12 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Tenant {
-  id Int @id @default(autoincrement())
-  name String @unique
-  surname String @unique
-  violationType String
-  description String
-  city String
-  country String
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  tenants   Tenant[]  @relation("UserTenants")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
+
+model Tenant {
+  id             Int      @id @default(autoincrement())
+  name           String   @unique
+  surname        String   @unique
+  violationType  String
+  description    String
+  city           String
+  country        String
+  createdBy      User    @relation("UserTenants", fields: [createdById], references: [id])
+  createdById    Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
