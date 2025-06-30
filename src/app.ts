@@ -7,7 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import AppRouter from "./router/AppRouter";
 
 import prismaInstance from "@database";
-import { errorMiddleware } from "@middlewares";
+import { errorMiddleware, requestLogger } from "@middlewares";
 
 import { generateSwaggerYaml } from "@utility/helpers/swaggerHelper";
 
@@ -39,6 +39,7 @@ class Nexit {
   }
 
   private initializeMiddlewares() {
+    this.app.use(requestLogger);
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(express.static(path.join(__dirname, "public")));
