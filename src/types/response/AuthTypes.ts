@@ -2,6 +2,10 @@ export interface AuthResponse {
   user: {
     id: number;
     email: string;
+    name?: string;
+    surname?: string;
+    city?: string;
+    country?: string;
     createdAt: Date;
   };
   token: string;

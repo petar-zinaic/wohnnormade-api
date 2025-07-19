@@ -34,10 +34,14 @@ export default class AuthService extends BaseService<UserRepository> {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 
-    // Create user
-    const user = await this._repository.createUser({
+    // Create user with all fields
+    const user = await this._repository.createUserWithDetails({
       email: data.email,
       password: hashedPassword,
+      name: data.name,
+      surname: data.surname,
+      city: data.city,
+      country: data.country,
     });
 
     // Generate JWT token
@@ -47,6 +51,10 @@ export default class AuthService extends BaseService<UserRepository> {
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
+        surname: user.surname,
+        city: user.city,
+        country: user.country,
         createdAt: user.createdAt,
       },
       token,
@@ -73,6 +81,10 @@ export default class AuthService extends BaseService<UserRepository> {
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
+        surname: user.surname,
+        city: user.city,
+        country: user.country,
         createdAt: user.createdAt,
       },
       token,

@@ -7,7 +7,11 @@ export const registerSchema = Joi.object({
     "string.min": "Password must be at least 6 characters long",
     "string.max": "Password must not exceed 50 characters",
   }),
-});
+  name: Joi.string().max(100).optional(),
+  surname: Joi.string().max(100).optional(),
+  city: Joi.string().max(100).optional(),
+  country: Joi.string().max(100).optional(),
+}).unknown(true);
 
 export const loginSchema = Joi.object({
   email: emailSchema.required(),

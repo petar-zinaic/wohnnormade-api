@@ -1,6 +1,10 @@
 export interface RegisterInput {
   email: string;
   password: string;
+  name?: string;
+  surname?: string;
+  city?: string;
+  country?: string;
 }
 
 export interface LoginInput {
@@ -21,4 +25,21 @@ export interface ResetPasswordInput {
 
 export interface ForgotPasswordInput {
   email: string;
+}
+
+export interface CreateUserInput {
+  email: string;
+  password: string;
+  name?: string;
+  surname?: string;
+  city?: string;
+  country?: string;
+}
+
+export interface UpdateUserInput {
+  email?: string;
+  name?: string;
+  surname?: string;
+  city?: string;
+  country?: string;
 }
