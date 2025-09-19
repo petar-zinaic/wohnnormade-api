@@ -25,6 +25,11 @@ export default class TenantRoutes extends BaseRoutes<TenantController> {
       "/search",
       asyncHandler(this._controller.searchTenantsByName)
     );
+    this._router.delete(
+      "/:id",
+      authenticateToken,
+      asyncHandler(this._controller.deleteTenant)
+    );
 
     return this._router;
   }

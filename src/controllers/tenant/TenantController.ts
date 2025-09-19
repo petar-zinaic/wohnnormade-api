@@ -47,4 +47,11 @@ export default class TenantController extends BaseController<TenantService> {
 
     this._responseHandler.processResponse(res, result);
   };
+
+  deleteTenant = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const result = await this._service.deleteTenant(parseInt(id));
+
+    this._responseHandler.processResponse(res, result);
+  };
 }

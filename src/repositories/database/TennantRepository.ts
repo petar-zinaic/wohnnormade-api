@@ -106,4 +106,26 @@ export default class TennantRepository extends BaseRepository {
       throw error;
     }
   }
+
+  public async deleteTenant(id: number) {
+    try {
+      const deletedTenant = await this.prismaClient.tenant.delete({
+        where: { id },
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              surname: true,
+            },
+          },
+        },
+      });
+
+      return deletedTenant;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

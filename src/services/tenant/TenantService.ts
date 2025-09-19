@@ -22,4 +22,8 @@ export default class TenantService extends BaseService<TennantRepository> {
   async searchTenantsByName(name: string) {
     return this._repository.searchTenantsByName(name);
   }
+
+  async deleteTenant(id: number) {
+    return this._repository.deleteTenant(id);
+  }
 }
