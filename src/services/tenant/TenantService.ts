@@ -2,7 +2,7 @@ import { TennantRepository } from "src/repositories/database";
 import BaseService from "../BaseService";
 import { CreateTennantInput } from "@requestType";
 
-export default class ContributeService extends BaseService<TennantRepository> {
+export default class TenantService extends BaseService<TennantRepository> {
   constructor() {
     super(new TennantRepository());
   }
@@ -17,5 +17,9 @@ export default class ContributeService extends BaseService<TennantRepository> {
 
   async getAllTenants() {
     return this._repository.getAllTenants();
+  }
+
+  async searchTenantsByName(name: string) {
+    return this._repository.searchTenantsByName(name);
   }
 }

@@ -76,4 +76,34 @@ export default class TennantRepository extends BaseRepository {
       throw error;
     }
   }
+
+  public async searchTenantsByName(name: string) {
+    try {
+      const tenants = await this.prismaClient.tenant.findMany({
+        where: {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
+        },
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              surname: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      return tenants;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
