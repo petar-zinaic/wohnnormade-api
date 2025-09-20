@@ -24,6 +24,7 @@ model Tenant {
   id             Int      @id @default(autoincrement())
   name           String   @unique
   surname        String   @unique
+  dateOfBirth    DateTime?
   violationType  String
   description    String
   city           String
