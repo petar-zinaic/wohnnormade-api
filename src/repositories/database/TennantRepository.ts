@@ -77,14 +77,96 @@ export default class TennantRepository extends BaseRepository {
     }
   }
 
-  public async searchTenantsByName(name: string) {
+  public async searchTenantsByName(searchTerm: string) {
     try {
+      // Split the search term into words
+      const searchWords = searchTerm
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length > 0);
+
+      const whereConditions: any[] = [];
+
+      if (searchWords.length === 1) {
+        // Single word: search in both name and surname
+        const word = searchWords[0];
+        whereConditions.push(
+          {
+            name: {
+              contains: word,
+              mode: "insensitive",
+            },
+          },
+          {
+            surname: {
+              contains: word,
+              mode: "insensitive",
+            },
+          }
+        );
+      } else if (searchWords.length >= 2) {
+        // Multiple words: create combinations
+        const [firstName, ...restWords] = searchWords;
+        const lastName = restWords.join(" ");
+
+        // Search for first word in name and rest in surname
+        whereConditions.push({
+          AND: [
+            {
+              name: {
+                contains: firstName,
+                mode: "insensitive",
+              },
+            },
+            {
+              surname: {
+                contains: lastName,
+                mode: "insensitive",
+              },
+            },
+          ],
+        });
+
+        // Search for first word in surname and rest in name
+        whereConditions.push({
+          AND: [
+            {
+              surname: {
+                contains: firstName,
+                mode: "insensitive",
+              },
+            },
+            {
+              name: {
+                contains: lastName,
+                mode: "insensitive",
+              },
+            },
+          ],
+        });
+
+        // Search for each word individually in both fields
+        searchWords.forEach((word) => {
+          whereConditions.push(
+            {
+              name: {
+                contains: word,
+                mode: "insensitive",
+              },
+            },
+            {
+              surname: {
+                contains: word,
+                mode: "insensitive",
+              },
+            }
+          );
+        });
+      }
+
       const tenants = await this.prismaClient.tenant.findMany({
         where: {
-          name: {
-            contains: name,
-            mode: "insensitive",
-          },
+          OR: whereConditions,
         },
         include: {
           createdBy: {

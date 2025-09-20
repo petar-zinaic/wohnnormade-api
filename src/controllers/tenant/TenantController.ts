@@ -33,17 +33,17 @@ export default class TenantController extends BaseController<TenantService> {
   };
 
   searchTenantsByName = async (req: Request, res: Response): Promise<void> => {
-    const { name } = req.query;
+    const { q } = req.query;
 
-    if (!name || typeof name !== "string") {
+    if (!q || typeof q !== "string") {
       return this._responseHandler.processResponse(res, {
         success: false,
-        message: "Name parameter is required",
+        message: "Search query parameter 'q' is required",
         data: null,
       });
     }
 
-    const result = await this._service.searchTenantsByName(name);
+    const result = await this._service.searchTenantsByName(q);
 
     this._responseHandler.processResponse(res, result);
   };
