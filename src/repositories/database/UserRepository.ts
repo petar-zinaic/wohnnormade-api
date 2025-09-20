@@ -16,12 +16,18 @@ export default class UserRepository extends BaseRepository {
   async findUserByEmail(email: string): Promise<any | null> {
     return await this.prismaClient.user.findUnique({
       where: { email },
+      include: {
+        tenants: true,
+      },
     });
   }
 
   async findUserById(id: number): Promise<any | null> {
     return await this.prismaClient.user.findUnique({
       where: { id },
+      include: {
+        tenants: true,
+      },
     });
   }
 
@@ -55,6 +61,9 @@ export default class UserRepository extends BaseRepository {
     return await this.prismaClient.user.update({
       where: { id: userId },
       data: userData,
+      include: {
+        tenants: true,
+      },
     });
   }
 
@@ -75,6 +84,7 @@ export default class UserRepository extends BaseRepository {
         country: true,
         createdAt: true,
         updatedAt: true,
+        tenants: true,
       },
     });
   }

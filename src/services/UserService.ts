@@ -1,6 +1,10 @@
 import UserRepository from "../repositories/database/UserRepository";
 import { UpdateUserInput } from "../types/request/AuthTypes";
-import { UserResponse, UserListResponse } from "../types/response/UserTypes";
+import {
+  UserResponse,
+  UserListResponse,
+  TenantData,
+} from "../types/response/UserTypes";
 import InvalidIdException from "../utility/exceptions/BadRequest/InvalidIdException";
 
 export default class UserService {
@@ -63,6 +67,7 @@ export default class UserService {
       surname: user.surname,
       city: user.city,
       country: user.country,
+      tenants: this.mapTenantsToResponse(user.tenants || []),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -76,8 +81,24 @@ export default class UserService {
       surname: user.surname,
       city: user.city,
       country: user.country,
+      tenants: this.mapTenantsToResponse(user.tenants || []),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+  }
+
+  private mapTenantsToResponse(tenants: any[]): TenantData[] {
+    return tenants.map((tenant: any) => ({
+      id: tenant.id,
+      name: tenant.name,
+      surname: tenant.surname,
+      dateOfBirth: tenant.dateOfBirth,
+      violationType: tenant.violationType,
+      description: tenant.description,
+      city: tenant.city,
+      country: tenant.country,
+      createdAt: tenant.createdAt,
+      updatedAt: tenant.updatedAt,
+    }));
   }
 }
