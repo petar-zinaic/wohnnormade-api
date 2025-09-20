@@ -20,11 +20,11 @@ export default class TenantRoutes extends BaseRoutes<TenantController> {
       asyncHandler(this._controller.createTennant)
     );
     this._router.get("/", asyncHandler(this._controller.getAllTenants));
-    this._router.get("/:id", asyncHandler(this._controller.getTenantById));
     this._router.get(
       "/search",
       asyncHandler(this._controller.searchTenantsByName)
     );
+    this._router.get("/:id", asyncHandler(this._controller.getTenantById));
     this._router.delete(
       "/:id",
       authenticateToken,
