@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import BaseController from "../BaseController";
 import { TenantService } from "src/services/tenant";
+import { UpdateTennantInput } from "@requestType";
 
 interface AuthRequest extends Request {
   userId?: number;
@@ -44,6 +45,14 @@ export default class TenantController extends BaseController<TenantService> {
     }
 
     const result = await this._service.searchTenantsByName(q);
+
+    this._responseHandler.processResponse(res, result);
+  };
+
+  updateTenant = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const updateData: UpdateTennantInput = req.body;
+    const result = await this._service.updateTenant(parseInt(id), updateData);
 
     this._responseHandler.processResponse(res, result);
   };

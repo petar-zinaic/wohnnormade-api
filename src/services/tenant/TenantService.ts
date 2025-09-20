@@ -1,6 +1,6 @@
 import { TennantRepository } from "src/repositories/database";
 import BaseService from "../BaseService";
-import { CreateTennantInput } from "@requestType";
+import { CreateTennantInput, UpdateTennantInput } from "@requestType";
 
 export default class TenantService extends BaseService<TennantRepository> {
   constructor() {
@@ -21,6 +21,10 @@ export default class TenantService extends BaseService<TennantRepository> {
 
   async searchTenantsByName(searchTerm: string) {
     return this._repository.searchTenantsByName(searchTerm);
+  }
+
+  async updateTenant(id: number, data: UpdateTennantInput) {
+    return this._repository.updateTenant(id, data);
   }
 
   async deleteTenant(id: number) {

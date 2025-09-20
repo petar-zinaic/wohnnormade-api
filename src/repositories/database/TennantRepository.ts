@@ -1,5 +1,5 @@
 import BaseRepository from "./BaseRepository";
-import { CreateTennantInput } from "@requestType";
+import { CreateTennantInput, UpdateTennantInput } from "@requestType";
 import { ExistingTennantException } from "@utility/exceptions";
 
 export default class TennantRepository extends BaseRepository {
@@ -184,6 +184,29 @@ export default class TennantRepository extends BaseRepository {
       });
 
       return tenants;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async updateTenant(id: number, data: UpdateTennantInput) {
+    try {
+      const updatedTenant = await this.prismaClient.tenant.update({
+        where: { id },
+        data,
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              surname: true,
+            },
+          },
+        },
+      });
+
+      return updatedTenant;
     } catch (error) {
       throw error;
     }
