@@ -1,4 +1,4 @@
-import { TennantRepository } from "src/repositories/database";
+import { TennantRepository } from "@repository/database";
 import BaseService from "../BaseService";
 import { CreateTennantInput, UpdateTennantInput } from "@requestType";
 

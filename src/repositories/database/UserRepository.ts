@@ -6,7 +6,7 @@ import {
   ResetPasswordInput,
   CreateUserInput,
   UpdateUserInput,
-} from "../../types/request/AuthTypes";
+} from "@requestType/AuthTypes";
 
 export default class UserRepository extends BaseRepository {
   constructor() {

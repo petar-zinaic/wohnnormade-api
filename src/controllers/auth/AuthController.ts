@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import BaseController from "../BaseController";
-import AuthService from "../../services/auth/AuthService";
+import AuthService from "@services/auth/AuthService";
 
 interface AuthRequest extends Request {
   userId?: number;
