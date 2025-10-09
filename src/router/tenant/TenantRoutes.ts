@@ -6,7 +6,7 @@ import {
 } from "@middlewares";
 import BaseRoutes from "../BaseRoutes";
 
-import { TenantController } from "src/controllers/tenant";
+import { TenantController } from "../../controllers/tenant";
 
 export default class TenantRoutes extends BaseRoutes<TenantController> {
   constructor() {
