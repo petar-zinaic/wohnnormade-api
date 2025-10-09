@@ -1,0 +1,278 @@
+openapi: 3.0.0
+info:
+  title: Communication API
+  description: API endpoints for landlord communication system
+  version: 1.0.0
+
+paths:
+  /communications/contact-reporter:
+    post:
+      summary: Contact a reporter about a tenant
+      description: Send an initial contact message to a landlord who reported a tenant
+      tags:
+        - Communications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tenantId
+                - recipientId
+                - message
+              properties:
+                tenantId:
+                  type: integer
+                  description: ID of the tenant being discussed
+                  example: 1
+                recipientId:
+                  type: integer
+                  description: ID of the landlord to contact
+                  example: 2
+                message:
+                  type: string
+                  description: The message content
+                  minLength: 20
+                  maxLength: 2000
+                  example: "Hello, I would like to discuss the tenant you reported. Could we arrange a call?"
+      responses:
+        '200':
+          description: Contact message sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  result:
+                    type: object
+                    properties:
+                      threadId:
+                        type: string
+                        description: Unique identifier for the conversation thread
+                        example: "123e4567-e89b-12d3-a456-426614174000"
+                      message:
+                        $ref: '#/components/schemas/Communication'
+        '400':
+          description: Bad request - validation error
+        '401':
+          description: Unauthorized - authentication required
+        '404':
+          description: Tenant or recipient not found
+        '500':
+          description: Internal server error
+
+  /communications/reply:
+    post:
+      summary: Reply to an existing conversation thread
+      description: Send a reply message in an existing conversation thread
+      tags:
+        - Communications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - threadId
+                - message
+              properties:
+                threadId:
+                  type: string
+                  description: ID of the conversation thread
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                message:
+                  type: string
+                  description: The reply message content
+                  minLength: 20
+                  maxLength: 2000
+                  example: "Thank you for reaching out. I'm available for a call tomorrow at 2 PM."
+      responses:
+        '200':
+          description: Reply sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  result:
+                    $ref: '#/components/schemas/Communication'
+        '400':
+          description: Bad request - validation error
+        '401':
+          description: Unauthorized - authentication required
+        '403':
+          description: Forbidden - access denied to thread
+        '404':
+          description: Thread not found
+        '500':
+          description: Internal server error
+
+  /communications/thread/{threadId}:
+    get:
+      summary: Get conversation thread
+      description: Retrieve all messages in a conversation thread
+      tags:
+        - Communications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: threadId
+          in: path
+          required: true
+          description: ID of the conversation thread
+          schema:
+            type: string
+            example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Thread retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  result:
+                    $ref: '#/components/schemas/Thread'
+        '401':
+          description: Unauthorized - authentication required
+        '403':
+          description: Forbidden - access denied to thread
+        '404':
+          description: Thread not found
+        '500':
+          description: Internal server error
+
+  /communications/my-conversations:
+    get:
+      summary: Get user's conversations
+      description: Retrieve all conversation threads for the authenticated user
+      tags:
+        - Communications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Conversations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Thread'
+        '401':
+          description: Unauthorized - authentication required
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    Communication:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        threadId:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        senderId:
+          type: integer
+          example: 1
+        recipientId:
+          type: integer
+          example: 2
+        tenantId:
+          type: integer
+          example: 3
+        subject:
+          type: string
+          example: "Contact Request Regarding Tenant"
+        message:
+          type: string
+          example: "Hello, I would like to discuss the tenant you reported."
+        isInitialMessage:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        sender:
+          $ref: '#/components/schemas/UserInfo'
+        recipient:
+          $ref: '#/components/schemas/UserInfo'
+        tenant:
+          $ref: '#/components/schemas/TenantInfo'
+
+    Thread:
+      type: object
+      properties:
+        threadId:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        tenant:
+          $ref: '#/components/schemas/TenantInfo'
+        communications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Communication'
+
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John"
+        surname:
+          type: string
+          example: "Doe"
+        email:
+          type: string
+          example: "john.doe@example.com"
+
+    TenantInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Jane"
+        surname:
+          type: string
+          example: "Smith"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
