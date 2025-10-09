@@ -2,7 +2,7 @@
   "name": "smart-drive-api",
   "version": "1.0.0",
   "description": "API for Smart Drive System",
-  "main": "app.js",
+  "main": "dist/server.js",
   "keywords": [],
   "author": "tismans95@gmail.com",
   "license": "ISC",
@@ -18,6 +18,8 @@
     "start:prod": "dotenv -e environments/.env.production -- node -r module-alias/register ./dist/server.js",
     "build": "tsc --build tsconfig.json && npm run copy-public",
     "copy-public": "cpx \"src/public/**/*\" dist/public",
+    "start": "node -r module-alias/register ./dist/server.js",
+    "postinstall": "npx prisma generate",
     "seed": "ts-node prisma/seed.ts"
   },
   "_moduleAliases": {
