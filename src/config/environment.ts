@@ -28,5 +28,10 @@ export default {
     },
     database: {
       url: getEnvVariable("DATABASE_URL")
+    },
+    email: {
+      resendApiKey: getEnvVariable("RESEND_API_KEY"),
+      fromEmail: getEnvVariable("FROM_EMAIL", "noreply@wohnnormade.com"),
+      clientUrl: getEnvVariable("CLIENT_URL", "http://localhost:3000")
     }
 }

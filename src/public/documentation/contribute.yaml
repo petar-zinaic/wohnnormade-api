@@ -1,0 +1,125 @@
+paths:
+  /contribute/create-tennant:
+    post:
+      summary: Create a new tenant
+      tags: [Contribute]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTenantRequest"
+      responses:
+        200:
+          description: Tenant created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantResponse"
+        400:
+          description: Validation error or tenant already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    CreateTenantRequest:
+      type: object
+      required:
+        - name
+        - surname
+        - violationType
+        - description
+        - city
+        - country
+      properties:
+        name:
+          type: string
+          description: Tenant's name
+          example: "John"
+        surname:
+          type: string
+          description: Tenant's surname
+          example: "Doe"
+        violationType:
+          type: string
+          description: Type of violation
+          example: "Noise complaint"
+        description:
+          type: string
+          description: Description of the issue
+          example: "Loud music after 10 PM"
+        city:
+          type: string
+          description: City where the issue occurred
+          example: "New York"
+        country:
+          type: string
+          description: Country where the issue occurred
+          example: "USA"
+
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Tenant's unique identifier
+          example: 1
+        name:
+          type: string
+          description: Tenant's name
+          example: "John"
+        surname:
+          type: string
+          description: Tenant's surname
+          example: "Doe"
+        violationType:
+          type: string
+          description: Type of violation
+          example: "Noise complaint"
+        description:
+          type: string
+          description: Description of the issue
+          example: "Loud music after 10 PM"
+        city:
+          type: string
+          description: City where the issue occurred
+          example: "New York"
+        country:
+          type: string
+          description: Country where the issue occurred
+          example: "USA"
+        createdById:
+          type: integer
+          description: ID of the user who created this tenant record
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          description: Tenant creation timestamp
+          example: "2024-01-01T00:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Tenant last update timestamp
+          example: "2024-01-01T00:00:00.000Z"
+
+    TenantResponse:
+      type: object
+      properties:
+        result:
+          $ref: "#/components/schemas/Tenant"
+        status:
+          type: boolean
+          default: true
+        error:
+          type: object
+          default: {}

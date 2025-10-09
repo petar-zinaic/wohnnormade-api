@@ -1,9 +1,36 @@
-export interface UserListResponse {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    created_at: Date;
-    updated_at: Date;    
+export interface TenantData {
+  id: number;
+  name: string;
+  surname: string;
+  dateOfBirth?: Date;
+  violationType: string;
+  description: string;
+  city: string;
+  country: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
+export interface UserResponse {
+  id: number;
+  email: string;
+  name?: string;
+  surname?: string;
+  city?: string;
+  country?: string;
+  tenants: TenantData[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserListResponse {
+  id: number;
+  email: string;
+  name?: string;
+  surname?: string;
+  city?: string;
+  country?: string;
+  tenants: TenantData[];
+  createdAt: Date;
+  updatedAt: Date;
+}
