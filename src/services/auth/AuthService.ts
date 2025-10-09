@@ -1,21 +1,21 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import BaseService from "../BaseService";
-import UserRepository from "../../repositories/database/UserRepository";
+import UserRepository from "@repository/database/UserRepository";
 import {
   RegisterInput,
   LoginInput,
   ChangePasswordInput,
   ResetPasswordInput,
   ForgotPasswordInput,
-} from "../../types/request/AuthTypes";
+} from "@requestType/AuthTypes";
 import {
   RegisterResponse,
   LoginResponse,
   ChangePasswordResponse,
   ResetPasswordResponse,
   ForgotPasswordResponse,
-} from "../../types/response/AuthTypes";
+} from "@responseType/AuthTypes";
 import envConfig from "@config/environment";
 
 export default class AuthService extends BaseService<UserRepository> {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import BaseController from "../BaseController";
-import { TenantService } from "src/services/tenant";
+import { TenantService } from "@services/tenant";
 import { UpdateTennantInput } from "@requestType";
 
 interface AuthRequest extends Request {

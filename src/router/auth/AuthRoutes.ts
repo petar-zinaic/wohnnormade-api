@@ -5,10 +5,10 @@ import {
   validateChangePasswordInput,
   validateResetPasswordInput,
   validateForgotPasswordInput,
-} from "../../middlewares/validations/validateAuthInput";
-import { authenticateToken } from "../../middlewares/auth/authMiddleware";
+} from "@middlewares/validations/validateAuthInput";
+import { authenticateToken } from "@middlewares/auth/authMiddleware";
 import BaseRoutes from "../BaseRoutes";
-import { AuthController } from "../../controllers/auth";
+import { AuthController } from "@controllers/auth";
 
 export default class AuthRoutes extends BaseRoutes<AuthController> {
   constructor() {
