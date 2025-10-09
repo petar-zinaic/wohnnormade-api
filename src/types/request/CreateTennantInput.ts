@@ -6,4 +6,5 @@ export type CreateTennantInput = {
   description: string;
   city: string;
   country: string;
-}
+  createdById: number;
+};
