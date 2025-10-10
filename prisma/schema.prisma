@@ -50,9 +50,9 @@ model LandlordCommunication {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   
-  sender            User     @relation("CommunicationSender", fields: [senderId], references: [id])
-  recipient         User     @relation("CommunicationRecipient", fields: [recipientId], references: [id])
-  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  sender            User     @relation("CommunicationSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient         User     @relation("CommunicationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   
   @@index([threadId])
   @@index([tenantId])
