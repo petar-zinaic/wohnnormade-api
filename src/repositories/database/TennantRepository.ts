@@ -214,6 +214,12 @@ export default class TennantRepository extends BaseRepository {
 
   public async deleteTenant(id: number) {
     try {
+      // First, delete all related communications for this tenant
+      await this.prismaClient.landlordCommunication.deleteMany({
+        where: { tenantId: id },
+      });
+
+      // Then delete the tenant
       const deletedTenant = await this.prismaClient.tenant.delete({
         where: { id },
         include: {
