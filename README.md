@@ -1,2 +1,2 @@
-# nexit-api
-API applicaiton for nexit
+# wohnnomade-api
+API applicaiton for wohnnomade app
