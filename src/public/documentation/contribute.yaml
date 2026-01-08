@@ -71,6 +71,132 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /contribute:
+    get:
+      summary: Get all tenants
+      tags: [Contribute]
+      responses:
+        200:
+          description: List of all tenants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tenant"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /contribute/{id}:
+    get:
+      summary: Get tenant by ID
+      tags: [Contribute]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Tenant ID
+          schema:
+            type: integer
+          example: 1
+      responses:
+        200:
+          description: Tenant details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+        404:
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      summary: Update tenant by ID
+      tags: [Contribute]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Tenant ID
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTenantRequest"
+      responses:
+        200:
+          description: Tenant updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantResponse"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Delete tenant by ID
+      tags: [Contribute]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Tenant ID
+          schema:
+            type: integer
+          example: 1
+      responses:
+        200:
+          description: Tenant deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantResponse"
+        404:
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     CreateTenantRequest:
@@ -95,6 +221,39 @@ components:
           type: string
           format: date
           description: Tenant's date of birth (optional)
+          example: "1990-05-15"
+        violationType:
+          type: string
+          description: Type of violation
+          example: "Noise complaint"
+        description:
+          type: string
+          description: Description of the issue
+          example: "Loud music after 10 PM"
+        city:
+          type: string
+          description: City where the issue occurred
+          example: "New York"
+        country:
+          type: string
+          description: Country where the issue occurred
+          example: "USA"
+
+    UpdateTenantRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Tenant's name
+          example: "John"
+        surname:
+          type: string
+          description: Tenant's surname
+          example: "Doe"
+        dateOfBirth:
+          type: string
+          format: date
+          description: Tenant's date of birth
           example: "1990-05-15"
         violationType:
           type: string
