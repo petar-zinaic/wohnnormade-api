@@ -34,7 +34,7 @@ export default class TenantController extends BaseController<TenantService> {
   };
 
   searchTenantsByName = async (req: Request, res: Response): Promise<void> => {
-    const { q } = req.query;
+    const { q, dateOfBirth } = req.query;
 
     if (!q || typeof q !== "string") {
       return this._responseHandler.processResponse(res, {
@@ -44,7 +44,10 @@ export default class TenantController extends BaseController<TenantService> {
       });
     }
 
-    const result = await this._service.searchTenantsByName(q);
+    const result = await this._service.searchTenantsByName(
+      q,
+      dateOfBirth && typeof dateOfBirth === "string" ? dateOfBirth : undefined
+    );
 
     this._responseHandler.processResponse(res, result);
   };

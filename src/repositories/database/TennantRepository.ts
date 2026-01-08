@@ -77,7 +77,7 @@ export default class TennantRepository extends BaseRepository {
     }
   }
 
-  public async searchTenantsByName(searchTerm: string) {
+  public async searchTenantsByName(searchTerm: string, dateOfBirth?: string) {
     try {
       // Split the search term into words
       const searchWords = searchTerm
@@ -164,10 +164,32 @@ export default class TennantRepository extends BaseRepository {
         });
       }
 
+      // Build the where clause
+      const whereClause: any = {
+        OR: whereConditions,
+      };
+
+      // Add date of birth filter if provided
+      if (dateOfBirth) {
+        const searchDate = new Date(dateOfBirth);
+        // Search for exact date match (ignoring time)
+        const startOfDay = new Date(searchDate.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(searchDate.setHours(23, 59, 59, 999));
+
+        whereClause.AND = [
+          whereClause.OR ? { OR: whereClause.OR } : {},
+          {
+            dateOfBirth: {
+              gte: startOfDay,
+              lte: endOfDay,
+            },
+          },
+        ];
+        delete whereClause.OR;
+      }
+
       const tenants = await this.prismaClient.tenant.findMany({
-        where: {
-          OR: whereConditions,
-        },
+        where: whereClause,
         include: {
           createdBy: {
             select: {

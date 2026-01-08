@@ -19,8 +19,8 @@ export default class TenantService extends BaseService<TennantRepository> {
     return this._repository.getAllTenants();
   }
 
-  async searchTenantsByName(searchTerm: string) {
-    return this._repository.searchTenantsByName(searchTerm);
+  async searchTenantsByName(searchTerm: string, dateOfBirth?: string) {
+    return this._repository.searchTenantsByName(searchTerm, dateOfBirth);
   }
 
   async updateTenant(id: number, data: UpdateTennantInput) {

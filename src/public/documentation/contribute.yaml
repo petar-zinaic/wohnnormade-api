@@ -29,6 +29,48 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /contribute/search:
+    get:
+      summary: Search tenants by name and optionally by date of birth
+      tags: [Contribute]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query for tenant name or surname
+          schema:
+            type: string
+          example: "John Doe"
+        - name: dateOfBirth
+          in: query
+          required: false
+          description: Filter by date of birth (ISO 8601 format YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+          example: "1990-05-15"
+      responses:
+        200:
+          description: List of matching tenants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tenant"
+        400:
+          description: Missing or invalid search query
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     CreateTenantRequest:
@@ -49,6 +91,11 @@ components:
           type: string
           description: Tenant's surname
           example: "Doe"
+        dateOfBirth:
+          type: string
+          format: date
+          description: Tenant's date of birth (optional)
+          example: "1990-05-15"
         violationType:
           type: string
           description: Type of violation
@@ -81,6 +128,11 @@ components:
           type: string
           description: Tenant's surname
           example: "Doe"
+        dateOfBirth:
+          type: string
+          format: date-time
+          description: Tenant's date of birth
+          example: "1990-05-15T00:00:00.000Z"
         violationType:
           type: string
           description: Type of violation
