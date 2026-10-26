@@ -15,7 +15,7 @@ import envConfig from "@config/environment";
 
 import { Express } from "express";
 
-class Nexit {
+class WohnnormadeApp {
   private app: Express;
   private router: AppRouter;
 
@@ -82,4 +82,4 @@ class Nexit {
   }
 }
 
-export default Nexit;
+export default WohnnormadeApp;

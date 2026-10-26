@@ -6,7 +6,7 @@ import {
   resetPasswordSchema,
   forgotPasswordSchema,
 } from "./schemas/authSchemas";
-import { InvalidCreateTennantBodyException } from "@utility/exceptions";
+import { InvalidRequestException } from "@utility/exceptions";
 
 export const validateRegisterInput = (
   req: Request,
@@ -16,7 +16,7 @@ export const validateRegisterInput = (
   const { error } = registerSchema.validate(req.body);
 
   if (error) {
-    throw new InvalidCreateTennantBodyException(error.details[0].message);
+    throw new InvalidRequestException(error.details[0].message);
   }
 
   next();
@@ -30,7 +30,7 @@ export const validateLoginInput = (
   const { error } = loginSchema.validate(req.body);
 
   if (error) {
-    throw new InvalidCreateTennantBodyException(error.details[0].message);
+    throw new InvalidRequestException(error.details[0].message);
   }
 
   next();
@@ -44,7 +44,7 @@ export const validateChangePasswordInput = (
   const { error } = changePasswordSchema.validate(req.body);
 
   if (error) {
-    throw new InvalidCreateTennantBodyException(error.details[0].message);
+    throw new InvalidRequestException(error.details[0].message);
   }
 
   next();
@@ -58,7 +58,7 @@ export const validateResetPasswordInput = (
   const { error } = resetPasswordSchema.validate(req.body);
 
   if (error) {
-    throw new InvalidCreateTennantBodyException(error.details[0].message);
+    throw new InvalidRequestException(error.details[0].message);
   }
 
   next();
@@ -72,7 +72,7 @@ export const validateForgotPasswordInput = (
   const { error } = forgotPasswordSchema.validate(req.body);
 
   if (error) {
-    throw new InvalidCreateTennantBodyException(error.details[0].message);
+    throw new InvalidRequestException(error.details[0].message);
   }
 
   next();

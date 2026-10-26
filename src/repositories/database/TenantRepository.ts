@@ -1,17 +1,20 @@
+import { Prisma } from "@prisma/client";
 import BaseRepository from "./BaseRepository";
-import { CreateTennantInput, UpdateTennantInput } from "@requestType";
-import { ExistingTennantException } from "@utility/exceptions";
+import { CreateTenantInput, UpdateTenantInput } from "@requestType";
+import { ExistingTenantException } from "@utility/exceptions";
 
-export default class TennantRepository extends BaseRepository {
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+export default class TenantRepository extends BaseRepository {
   constructor() {
     super();
   }
 
-  public async createTennant(
-    data: CreateTennantInput & { createdById: number }
+  public async createTenant(
+    data: CreateTenantInput & { createdById: number }
   ) {
     try {
-      const tennant = await this.prismaClient.tenant.create({
+      const tenant = await this.prismaClient.tenant.create({
         data,
         include: {
           createdBy: {
@@ -25,9 +28,17 @@ export default class TennantRepository extends BaseRepository {
         },
       });
 
-      return tennant;
+      return tenant;
     } catch (error) {
-      throw new ExistingTennantException();
+      // Only a unique constraint violation means the tenant already exists
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new ExistingTenantException();
+      }
+
+      throw error;
     }
   }
 
@@ -85,7 +96,7 @@ export default class TennantRepository extends BaseRepository {
         .split(/\s+/)
         .filter((word) => word.length > 0);
 
-      const whereConditions: any[] = [];
+      const whereConditions: Prisma.TenantWhereInput[] = [];
 
       if (searchWords.length === 1) {
         // Single word: search in both name and surname
@@ -165,23 +176,29 @@ export default class TennantRepository extends BaseRepository {
       }
 
       // Build the where clause
-      const whereClause: any = {
+      const whereClause: Prisma.TenantWhereInput = {
         OR: whereConditions,
       };
 
       // Add date of birth filter if provided
       if (dateOfBirth) {
         const searchDate = new Date(dateOfBirth);
-        // Search for exact date match (ignoring time)
-        const startOfDay = new Date(searchDate.setHours(0, 0, 0, 0));
-        const endOfDay = new Date(searchDate.setHours(23, 59, 59, 999));
+        // Match the whole calendar day in UTC, the same way dates are stored
+        const startOfDay = new Date(
+          Date.UTC(
+            searchDate.getUTCFullYear(),
+            searchDate.getUTCMonth(),
+            searchDate.getUTCDate()
+          )
+        );
+        const startOfNextDay = new Date(startOfDay.getTime() + ONE_DAY_MS);
 
         whereClause.AND = [
           whereClause.OR ? { OR: whereClause.OR } : {},
           {
             dateOfBirth: {
               gte: startOfDay,
-              lte: endOfDay,
+              lt: startOfNextDay,
             },
           },
         ];
@@ -211,7 +228,7 @@ export default class TennantRepository extends BaseRepository {
     }
   }
 
-  public async updateTenant(id: number, data: UpdateTennantInput) {
+  public async updateTenant(id: number, data: UpdateTenantInput) {
     try {
       const updatedTenant = await this.prismaClient.tenant.update({
         where: { id },
@@ -236,12 +253,7 @@ export default class TennantRepository extends BaseRepository {
 
   public async deleteTenant(id: number) {
     try {
-      // First, delete all related communications for this tenant
-      await this.prismaClient.landlordCommunication.deleteMany({
-        where: { tenantId: id },
-      });
-
-      // Then delete the tenant
+      // Related communications are removed by the database (ON DELETE CASCADE)
       const deletedTenant = await this.prismaClient.tenant.delete({
         where: { id },
         include: {

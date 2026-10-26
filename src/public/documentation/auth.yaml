@@ -17,7 +17,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/AuthResponse"
         400:
-          description: Validation error or user already exists
+          description: Validation error (unknown fields are rejected)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        409:
+          description: User with this email already exists
           content:
             application/json:
               schema:
@@ -47,7 +53,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/AuthResponse"
         400:
-          description: Invalid credentials
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Invalid email or password
           content:
             application/json:
               schema:
@@ -79,13 +91,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/MessageResponse"
         400:
-          description: Invalid current password or validation error
+          description: Validation error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         401:
-          description: Unauthorized - Invalid or missing token
+          description: Invalid or missing token, or current password is incorrect
           content:
             application/json:
               schema:
@@ -100,6 +112,11 @@ paths:
   /auth/forgot-password:
     post:
       summary: Request password reset
+      description: >
+        If the email belongs to an account, emails a single-use reset link
+        (`<CLIENT_URL>/reset-password?token=...`) valid for 60 minutes and
+        invalidates earlier unused links. Always returns the same response so
+        it cannot be used to check whether an email is registered.
       tags: [Authentication]
       requestBody:
         required: true
@@ -130,6 +147,7 @@ paths:
   /auth/reset-password:
     post:
       summary: Reset password with token
+      description: Sets a new password using the token from the reset email. Each token works once.
       tags: [Authentication]
       requestBody:
         required: true
@@ -145,7 +163,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/MessageResponse"
         400:
-          description: Invalid reset token or validation error
+          description: Reset token is invalid, expired or already used, or validation error
           content:
             application/json:
               schema:
@@ -224,24 +242,21 @@ components:
     ResetPasswordRequest:
       type: object
       required:
-        - email
+        - token
         - newPassword
       properties:
-        email:
+        token:
           type: string
-          format: email
-          description: User's email address
-          example: "user@example.com"
+          minLength: 64
+          maxLength: 64
+          description: Reset token from the `token` query parameter of the reset email link (64 hex characters)
+          example: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
         newPassword:
           type: string
           minLength: 6
           maxLength: 50
           description: User's new password (minimum 6 characters)
           example: "newPassword123"
-        resetToken:
-          type: string
-          description: Password reset token (optional for simplified implementation)
-          example: "abc123token"
 
     User:
       type: object

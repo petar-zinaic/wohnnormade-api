@@ -1,11 +1,10 @@
-import { Router } from "express";
 import BaseRoutes from "./BaseRoutes";
-import CommunicationController from "../controllers/CommunicationController";
-import { authenticateToken } from "@middlewares";
+import CommunicationController from "@controllers/CommunicationController";
+import { asyncHandler, authenticateToken } from "@middlewares";
 import {
   validateContactReporterInput,
   validateReplyToThreadInput,
-} from "../middlewares/validations/validateCommunicationInput";
+} from "@middlewares/validations/validateCommunicationInput";
 
 export default class CommunicationRoutes extends BaseRoutes<CommunicationController> {
   constructor() {
@@ -20,26 +19,26 @@ export default class CommunicationRoutes extends BaseRoutes<CommunicationControl
     this._router.post(
       "/contact-reporter",
       validateContactReporterInput,
-      this._controller.contactReporter.bind(this._controller)
+      asyncHandler(this._controller.contactReporter)
     );
 
     // Reply to thread endpoint
     this._router.post(
       "/reply",
       validateReplyToThreadInput,
-      this._controller.replyToThread.bind(this._controller)
+      asyncHandler(this._controller.replyToThread)
     );
 
     // Get specific thread
     this._router.get(
       "/thread/:threadId",
-      this._controller.getThread.bind(this._controller)
+      asyncHandler(this._controller.getThread)
     );
 
     // Get user's conversations
     this._router.get(
       "/my-conversations",
-      this._controller.getUserConversations.bind(this._controller)
+      asyncHandler(this._controller.getUserConversations)
     );
 
     return this._router;

@@ -11,7 +11,7 @@ export const registerSchema = Joi.object({
   surname: Joi.string().max(100).optional(),
   city: Joi.string().max(100).optional(),
   country: Joi.string().max(100).optional(),
-}).unknown(true);
+});
 
 export const loginSchema = Joi.object({
   email: emailSchema.required(),
@@ -27,12 +27,14 @@ export const changePasswordSchema = Joi.object({
 });
 
 export const resetPasswordSchema = Joi.object({
-  email: emailSchema.required(),
+  token: Joi.string().hex().length(64).required().messages({
+    "string.hex": "Reset token is invalid",
+    "string.length": "Reset token is invalid",
+  }),
   newPassword: Joi.string().min(6).max(50).required().messages({
     "string.min": "New password must be at least 6 characters long",
     "string.max": "New password must not exceed 50 characters",
   }),
-  resetToken: Joi.string().optional(),
 });
 
 export const forgotPasswordSchema = Joi.object({

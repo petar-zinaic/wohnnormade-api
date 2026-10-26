@@ -1,8 +1,10 @@
 paths:
-  /contribute/create-tennant:
+  /tenant/create:
     post:
       summary: Create a new tenant
       tags: [Contribute]
+      security:
+        - JWTAuth: []
       requestBody:
         required: true
         content:
@@ -17,7 +19,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/TenantResponse"
         400:
-          description: Validation error or tenant already exists
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Invalid or missing token
           content:
             application/json:
               schema:
@@ -29,7 +37,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /contribute/search:
+  /tenant/search:
     get:
       summary: Search tenants by name and optionally by date of birth
       tags: [Contribute]
@@ -71,7 +79,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /contribute:
+  /tenant:
     get:
       summary: Get all tenants
       tags: [Contribute]
@@ -91,7 +99,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /contribute/{id}:
+  /tenant/{id}:
     get:
       summary: Get tenant by ID
       tags: [Contribute]
@@ -110,6 +118,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Tenant"
+        400:
+          description: ID is not a positive integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         404:
           description: Tenant not found
           content:
@@ -125,7 +139,10 @@ paths:
 
     put:
       summary: Update tenant by ID
+      description: Only the landlord who reported the tenant can update it.
       tags: [Contribute]
+      security:
+        - JWTAuth: []
       parameters:
         - name: id
           in: path
@@ -153,6 +170,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Tenant was reported by another landlord
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         404:
           description: Tenant not found
           content:
@@ -168,7 +197,10 @@ paths:
 
     delete:
       summary: Delete tenant by ID
+      description: Only the landlord who reported the tenant can delete it. Related message threads are deleted too.
       tags: [Contribute]
+      security:
+        - JWTAuth: []
       parameters:
         - name: id
           in: path
@@ -184,6 +216,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TenantResponse"
+        401:
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Tenant was reported by another landlord
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         404:
           description: Tenant not found
           content:

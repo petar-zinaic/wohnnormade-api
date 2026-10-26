@@ -2,7 +2,7 @@ export interface TenantData {
   id: number;
   name: string;
   surname: string;
-  dateOfBirth?: Date;
+  dateOfBirth: Date | null;
   violationType: string;
   description: string;
   city: string;
@@ -14,10 +14,10 @@ export interface TenantData {
 export interface UserResponse {
   id: number;
   email: string;
-  name?: string;
-  surname?: string;
-  city?: string;
-  country?: string;
+  name: string | null;
+  surname: string | null;
+  city: string | null;
+  country: string | null;
   tenants: TenantData[];
   createdAt: Date;
   updatedAt: Date;
@@ -26,10 +26,10 @@ export interface UserResponse {
 export interface UserListResponse {
   id: number;
   email: string;
-  name?: string;
-  surname?: string;
-  city?: string;
-  country?: string;
+  name: string | null;
+  surname: string | null;
+  city: string | null;
+  country: string | null;
   tenants: TenantData[];
   createdAt: Date;
   updatedAt: Date;

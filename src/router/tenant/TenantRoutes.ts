@@ -1,7 +1,9 @@
 import {
   asyncHandler,
-  validateTennantInput,
-  validateUpdateTennantInput,
+  validateTenantInput,
+  validateUpdateTenantInput,
+  validateTenantSearchQuery,
+  validateNumericIdParam,
   authenticateToken,
 } from "@middlewares";
 import BaseRoutes from "../BaseRoutes";
@@ -17,24 +19,31 @@ export default class TenantRoutes extends BaseRoutes<TenantController> {
     this._router.post(
       "/create",
       authenticateToken,
-      validateTennantInput,
-      asyncHandler(this._controller.createTennant)
+      validateTenantInput,
+      asyncHandler(this._controller.createTenant)
     );
     this._router.get("/", asyncHandler(this._controller.getAllTenants));
     this._router.get(
       "/search",
+      validateTenantSearchQuery,
       asyncHandler(this._controller.searchTenantsByName)
     );
-    this._router.get("/:id", asyncHandler(this._controller.getTenantById));
+    this._router.get(
+      "/:id",
+      validateNumericIdParam,
+      asyncHandler(this._controller.getTenantById)
+    );
     this._router.put(
       "/:id",
       authenticateToken,
-      validateUpdateTennantInput,
+      validateNumericIdParam,
+      validateUpdateTenantInput,
       asyncHandler(this._controller.updateTenant)
     );
     this._router.delete(
       "/:id",
       authenticateToken,
+      validateNumericIdParam,
       asyncHandler(this._controller.deleteTenant)
     );
 

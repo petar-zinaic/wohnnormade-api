@@ -8,8 +8,13 @@ This API provides authentication functionality with the following endpoints:
 
    ```
    DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
-   JWT_SECRET="your-super-secret-jwt-key-here"
+   JWT_SECRET="<long random string>"
+   CLIENT_URL="http://localhost:3000"
    ```
+
+   `JWT_SECRET` is required: the app refuses to start without it. Generate one with
+   `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`.
+   `CLIENT_URL` is used for the links in emails (reset password, message threads).
 
 2. **Database Migration**: Run Prisma migrations to create the User table:
    ```bash
@@ -110,7 +115,13 @@ Authorization: Bearer <your-jwt-token>
 
 **POST** `/api/auth/forgot-password`
 
-Initiate password reset process.
+Start the password reset process. If the email belongs to an account, the API:
+
+- deletes any earlier unused reset tokens for that user
+- creates a random token, valid for **60 minutes** and usable **once**; only its SHA-256 hash is stored
+- emails a link to `<CLIENT_URL>/reset-password?token=<token>`
+
+The response is the same whether or not the email exists, so it can't be used to discover accounts.
 
 **Request Body:**
 
@@ -132,17 +143,18 @@ Initiate password reset process.
 
 **POST** `/api/auth/reset-password`
 
-Reset password using reset token (currently simplified implementation).
+Set a new password using the token from the reset email. The client's `/reset-password` page reads `token` from the URL and sends it here.
 
 **Request Body:**
 
 ```json
 {
-  "email": "user@example.com",
-  "newPassword": "newPassword123",
-  "resetToken": "optional-reset-token"
+  "token": "<64-character token from the email link>",
+  "newPassword": "newPassword123"
 }
 ```
+
+Returns `400` (`invalid_reset_token`) if the token is unknown, expired or already used.
 
 **Response:**
 
@@ -158,20 +170,28 @@ All endpoints return error responses in the following format:
 
 ```json
 {
+  "result": {},
+  "status": false,
   "error": {
-    "message": "Error description",
-    "code": "ERROR_CODE"
+    "status": 401,
+    "message": "Invalid email or password.",
+    "internal_code": "invalid_credentials"
   }
 }
 ```
 
-Common error codes:
+Error codes used by the auth and user endpoints:
 
-- `VALIDATION_ERROR`: Invalid input data
-- `AUTHENTICATION_ERROR`: Invalid credentials
-- `AUTHORIZATION_ERROR`: Missing or invalid token
-- `USER_EXISTS`: Email already registered
-- `USER_NOT_FOUND`: User doesn't exist
+| HTTP | `internal_code` | When |
+| ---- | --------------- | ---- |
+| 400 | `request_body_validation` | Invalid input data or unknown fields |
+| 400 | `invalid_reset_token` | Reset token unknown, expired or already used |
+| 401 | `missing_token` | Missing or invalid JWT |
+| 401 | `invalid_credentials` | Wrong email/password, or wrong current password |
+| 403 | `forbidden` | Changing another user's account |
+| 404 | `not_found` | User doesn't exist |
+| 409 | `email_already_exists` | Email already registered |
+| 500 | `internal_error` | Unexpected error (details are only logged on the server) |
 
 ## Authentication Middleware
 

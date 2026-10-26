@@ -11,7 +11,8 @@ interface SwaggerDoc {
   };
 }
 
-export async function generateSwaggerYaml(yamlPath: string){
+// Synchronous on purpose: app.ts sends the returned string as-is
+export function generateSwaggerYaml(yamlPath: string): string {
   const swaggerDocument = formatSwaggerDocument(yamlPath);
 
   return yaml.dump(swaggerDocument);

@@ -59,7 +59,7 @@ paths:
                       message:
                         $ref: '#/components/schemas/Communication'
         '400':
-          description: Bad request - validation error
+          description: Bad request - validation error, contacting yourself, or recipientId is not the landlord who reported the tenant
         '401':
           description: Unauthorized - authentication required
         '404':

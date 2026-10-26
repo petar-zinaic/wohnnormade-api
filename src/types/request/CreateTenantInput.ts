@@ -1,4 +1,4 @@
-export type CreateTennantInput = {
+export type CreateTenantInput = {
   name: string;
   surname: string;
   dateOfBirth?: Date;
