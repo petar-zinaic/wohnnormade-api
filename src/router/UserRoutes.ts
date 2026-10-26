@@ -1,10 +1,10 @@
-import { Router } from "express";
 import BaseRoutes from "./BaseRoutes";
-import UserController from "../controllers/UserController";
+import UserController from "@controllers/UserController";
+import { asyncHandler, authenticateToken } from "@middlewares";
 import {
   validateUpdateUserInput,
   validateUserId,
-} from "../middlewares/validations/validateUserInput";
+} from "@middlewares/validations/validateUserInput";
 
 export default class UserRoutes extends BaseRoutes<UserController> {
   constructor() {
@@ -12,29 +12,32 @@ export default class UserRoutes extends BaseRoutes<UserController> {
   }
 
   get routes() {
+    // All user routes require authentication
+    this._router.use(authenticateToken);
+
     // Get all users
-    this._router.get("/", this._controller.getAllUsers.bind(this._controller));
+    this._router.get("/", asyncHandler(this._controller.getAllUsers));
 
     // Get user by ID
     this._router.get(
       "/:id",
       validateUserId,
-      this._controller.getUserById.bind(this._controller)
+      asyncHandler(this._controller.getUserById)
     );
 
-    // Update user
+    // Update user (own account only)
     this._router.put(
       "/:id",
       validateUserId,
       validateUpdateUserInput,
-      this._controller.updateUser.bind(this._controller)
+      asyncHandler(this._controller.updateUser)
     );
 
-    // Delete user
+    // Delete user (own account only)
     this._router.delete(
       "/:id",
       validateUserId,
-      this._controller.deleteUser.bind(this._controller)
+      asyncHandler(this._controller.deleteUser)
     );
 
     return this._router;

@@ -1,4 +1,4 @@
-export type UpdateTennantInput = {
+export type UpdateTenantInput = {
   name?: string;
   surname?: string;
   dateOfBirth?: Date;

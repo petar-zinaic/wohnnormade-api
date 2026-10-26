@@ -173,3 +173,5 @@ The frontend should:
 - Thread IDs are UUIDs for security
 - All communications are stored in the database for history
 - The system prevents users from contacting themselves
+- `recipientId` in `contact-reporter` must be the landlord who reported the tenant (`tenant.createdBy.id`), otherwise the API returns 400
+- User-written text (names, messages) is HTML-escaped before it is placed in emails

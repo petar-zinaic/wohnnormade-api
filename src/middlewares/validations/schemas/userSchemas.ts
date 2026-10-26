@@ -7,7 +7,7 @@ export const updateUserSchema = Joi.object({
   surname: Joi.string().max(100).optional(),
   city: Joi.string().max(100).optional(),
   country: Joi.string().max(100).optional(),
-}).unknown(true);
+});
 
 export const userIdSchema = Joi.object({
   id: Joi.number().integer().positive().required(),

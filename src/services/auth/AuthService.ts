@@ -1,6 +1,8 @@
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import BaseService from "../BaseService";
+import EmailService from "@services/EmailService";
 import UserRepository from "@repository/database/UserRepository";
 import {
   RegisterInput,
@@ -16,23 +18,36 @@ import {
   ResetPasswordResponse,
   ForgotPasswordResponse,
 } from "@responseType/AuthTypes";
+import {
+  EmailAlreadyExistsException,
+  InvalidCredentialsException,
+  InvalidResetTokenException,
+  NotFoundException,
+} from "@exceptions";
 import envConfig from "@config/environment";
 
+const SALT_ROUNDS = 10;
+const RESET_TOKEN_TTL_MINUTES = 60;
+const FORGOT_PASSWORD_MESSAGE =
+  "If an account with this email exists, a password reset link has been sent";
+
 export default class AuthService extends BaseService<UserRepository> {
+  private emailService: EmailService;
+
   constructor() {
     super(new UserRepository());
+    this.emailService = new EmailService();
   }
 
   async register(data: RegisterInput): Promise<RegisterResponse> {
     // Check if user already exists
     const existingUser = await this._repository.findUserByEmail(data.email);
     if (existingUser) {
-      throw new Error("User with this email already exists");
+      throw new EmailAlreadyExistsException();
     }
 
     // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+    const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
 
     // Create user with all fields
     const user = await this._repository.createUserWithDetails({
@@ -65,13 +80,13 @@ export default class AuthService extends BaseService<UserRepository> {
     // Find user by email
     const user = await this._repository.findUserByEmail(data.email);
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new InvalidCredentialsException();
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
     if (!isPasswordValid) {
-      throw new Error("Invalid email or password");
+      throw new InvalidCredentialsException();
     }
 
     // Generate JWT token
@@ -98,7 +113,7 @@ export default class AuthService extends BaseService<UserRepository> {
     // Find user
     const user = await this._repository.findUserById(userId);
     if (!user) {
-      throw new Error("User not found");
+      throw new NotFoundException("User");
     }
 
     // Verify current password
@@ -107,12 +122,11 @@ export default class AuthService extends BaseService<UserRepository> {
       user.password
     );
     if (!isCurrentPasswordValid) {
-      throw new Error("Current password is incorrect");
+      throw new InvalidCredentialsException("Current password is incorrect.");
     }
 
     // Hash new password
-    const saltRounds = 10;
-    const hashedNewPassword = await bcrypt.hash(data.newPassword, saltRounds);
+    const hashedNewPassword = await bcrypt.hash(data.newPassword, SALT_ROUNDS);
 
     // Update password
     await this._repository.updateUserPassword(userId, hashedNewPassword);
@@ -125,59 +139,76 @@ export default class AuthService extends BaseService<UserRepository> {
   async forgotPassword(
     data: ForgotPasswordInput
   ): Promise<ForgotPasswordResponse> {
-    // Find user by email
+    // Same response whether or not the email exists, so accounts can't be discovered
     const user = await this._repository.findUserByEmail(data.email);
     if (!user) {
-      // Don't reveal if email exists or not for security
-      return {
-        message:
-          "If an account with this email exists, a password reset link has been sent",
-      };
+      return { message: FORGOT_PASSWORD_MESSAGE };
     }
 
-    // In a real implementation, you would:
-    // 1. Generate a secure reset token
-    // 2. Store it with expiration time
-    // 3. Send email with reset link
-    // For now, we'll just return a success message
+    // Only one active reset link per user
+    await this._repository.deleteUnusedResetTokensForUser(user.id);
 
-    return {
-      message:
-        "If an account with this email exists, a password reset link has been sent",
-    };
+    // Store only the hash; the raw token exists only in the email link
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
+    await this._repository.createResetToken(
+      user.id,
+      this.hashResetToken(resetToken),
+      expiresAt
+    );
+
+    try {
+      await this.emailService.sendPasswordReset({
+        recipient: { name: user.name || undefined, email: user.email },
+        resetToken,
+        expiresInMinutes: RESET_TOKEN_TTL_MINUTES,
+      });
+    } catch (emailError) {
+      console.error("Failed to send password reset email:", emailError);
+    }
+
+    return { message: FORGOT_PASSWORD_MESSAGE };
   }
 
   async resetPassword(
     data: ResetPasswordInput
   ): Promise<ResetPasswordResponse> {
-    // In a real implementation, you would verify the reset token
-    // For now, we'll just update the password if user exists
+    const resetToken = await this._repository.findResetTokenByHash(
+      this.hashResetToken(data.token)
+    );
 
-    const user = await this._repository.findUserByEmail(data.email);
-    if (!user) {
-      throw new Error("Invalid reset request");
+    if (
+      !resetToken ||
+      resetToken.usedAt ||
+      resetToken.expiresAt.getTime() < Date.now()
+    ) {
+      throw new InvalidResetTokenException();
     }
 
     // Hash new password
-    const saltRounds = 10;
-    const hashedNewPassword = await bcrypt.hash(data.newPassword, saltRounds);
+    const hashedNewPassword = await bcrypt.hash(data.newPassword, SALT_ROUNDS);
 
-    // Update password
-    await this._repository.updatePasswordByEmail(data.email, hashedNewPassword);
+    // Update password and mark the token used in one transaction
+    await this._repository.resetPasswordWithToken(
+      resetToken.id,
+      resetToken.userId,
+      hashedNewPassword
+    );
 
     return {
       message: "Password reset successfully",
     };
   }
 
+  private hashResetToken(token: string): string {
+    return crypto.createHash("sha256").update(token).digest("hex");
+  }
+
   private generateToken(userId: number): string {
-    // You should add JWT_SECRET to your environment configuration
-    const secret = process.env.JWT_SECRET || "your-default-secret-key";
-    return jwt.sign({ userId }, secret, { expiresIn: "24h" });
+    return jwt.sign({ userId }, envConfig.auth.jwtSecret, { expiresIn: "24h" });
   }
 
   verifyToken(token: string): { userId: number } {
-    const secret = process.env.JWT_SECRET || "your-default-secret-key";
-    return jwt.verify(token, secret) as { userId: number };
+    return jwt.verify(token, envConfig.auth.jwtSecret) as { userId: number };
   }
 }

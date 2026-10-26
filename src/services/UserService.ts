@@ -1,11 +1,18 @@
-import UserRepository from "../repositories/database/UserRepository";
-import { UpdateUserInput } from "../types/request/AuthTypes";
+import { Tenant } from "@prisma/client";
+import UserRepository, {
+  PublicUserWithTenants,
+} from "@repository/database/UserRepository";
+import { UpdateUserInput } from "@requestType/AuthTypes";
 import {
   UserResponse,
   UserListResponse,
   TenantData,
-} from "../types/response/UserTypes";
-import InvalidIdException from "../utility/exceptions/BadRequest/InvalidIdException";
+} from "@responseType/UserTypes";
+import {
+  EmailAlreadyExistsException,
+  ForbiddenException,
+  NotFoundException,
+} from "@exceptions";
 
 export default class UserService {
   private userRepository: UserRepository;
@@ -17,23 +24,26 @@ export default class UserService {
   async getUserById(id: number): Promise<UserResponse> {
     const user = await this.userRepository.findUserById(id);
     if (!user) {
-      throw new InvalidIdException();
+      throw new NotFoundException("User");
     }
     return this.mapToUserResponse(user);
   }
 
   async getAllUsers(): Promise<UserListResponse[]> {
     const users = await this.userRepository.getAllUsers();
-    return users.map((user: any) => this.mapToUserListResponse(user));
+    return users.map((user) => this.mapToUserListResponse(user));
   }
 
   async updateUser(
     id: number,
-    userData: UpdateUserInput
+    userData: UpdateUserInput,
+    requesterId: number
   ): Promise<UserResponse> {
+    this.assertSelf(id, requesterId);
+
     const existingUser = await this.userRepository.findUserById(id);
     if (!existingUser) {
-      throw new InvalidIdException();
+      throw new NotFoundException("User");
     }
 
     // Check if email is being updated and if it already exists
@@ -42,7 +52,7 @@ export default class UserService {
         userData.email
       );
       if (userWithEmail) {
-        throw new Error("User with this email already exists");
+        throw new EmailAlreadyExistsException();
       }
     }
 
@@ -50,16 +60,27 @@ export default class UserService {
     return this.mapToUserResponse(updatedUser);
   }
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(id: number, requesterId: number): Promise<void> {
+    this.assertSelf(id, requesterId);
+
     const existingUser = await this.userRepository.findUserById(id);
     if (!existingUser) {
-      throw new InvalidIdException();
+      throw new NotFoundException("User");
     }
 
+    // Tenants, communications and reset tokens are removed by ON DELETE CASCADE
     await this.userRepository.deleteUser(id);
   }
 
-  private mapToUserResponse(user: any): UserResponse {
+  // Users may only change their own account
+  private assertSelf(id: number, requesterId: number) {
+    if (id !== requesterId) {
+      throw new ForbiddenException("You can only modify your own account.");
+    }
+  }
+
+  // Accepts full user rows too; the password hash is never copied
+  private mapToUserResponse(user: PublicUserWithTenants): UserResponse {
     return {
       id: user.id,
       email: user.email,
@@ -67,13 +88,13 @@ export default class UserService {
       surname: user.surname,
       city: user.city,
       country: user.country,
-      tenants: this.mapTenantsToResponse(user.tenants || []),
+      tenants: this.mapTenantsToResponse(user.tenants),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
   }
 
-  private mapToUserListResponse(user: any): UserListResponse {
+  private mapToUserListResponse(user: PublicUserWithTenants): UserListResponse {
     return {
       id: user.id,
       email: user.email,
@@ -81,14 +102,14 @@ export default class UserService {
       surname: user.surname,
       city: user.city,
       country: user.country,
-      tenants: this.mapTenantsToResponse(user.tenants || []),
+      tenants: this.mapTenantsToResponse(user.tenants),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
   }
 
-  private mapTenantsToResponse(tenants: any[]): TenantData[] {
-    return tenants.map((tenant: any) => ({
+  private mapTenantsToResponse(tenants: Tenant[]): TenantData[] {
+    return tenants.map((tenant) => ({
       id: tenant.id,
       name: tenant.name,
       surname: tenant.surname,

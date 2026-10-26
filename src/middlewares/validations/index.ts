@@ -1,4 +1,4 @@
-export * from "./validateParamters";
-export * from "./validateTennantInputSchema";
-export * from "./validateUpdateTennantInputSchema";
+export * from "./validateParameters";
+export * from "./validateTenantInputSchema";
+export * from "./validateUpdateTenantInputSchema";
 export * from "./validateCommunicationInput";

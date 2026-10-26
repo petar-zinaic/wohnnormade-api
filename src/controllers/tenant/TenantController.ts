@@ -1,21 +1,15 @@
 import { Request, Response } from "express";
 import BaseController from "../BaseController";
 import { TenantService } from "@services/tenant";
-import { UpdateTennantInput } from "@requestType";
-
-interface AuthRequest extends Request {
-  userId?: number;
-}
+import { AuthRequest, UpdateTenantInput } from "@requestType";
 
 export default class TenantController extends BaseController<TenantService> {
   constructor() {
     super(new TenantService());
   }
 
-  createTennant = async (req: AuthRequest, res: Response): Promise<void> => {
-    // Get user ID from authenticated request
-    const createdById = req.userId || 1; // Fallback to 1 if no auth (for development)
-    const result = await this._service.createTanant(req.body, createdById);
+  createTenant = async (req: AuthRequest, res: Response): Promise<void> => {
+    const result = await this._service.createTenant(req.body, req.userId!);
 
     this._responseHandler.processResponse(res, result);
   };
@@ -34,32 +28,29 @@ export default class TenantController extends BaseController<TenantService> {
   };
 
   searchTenantsByName = async (req: Request, res: Response): Promise<void> => {
-    const { q } = req.query;
+    // Query is validated by validateTenantSearchQuery
+    const { q, dateOfBirth } = req.query as { q: string; dateOfBirth?: string };
 
-    if (!q || typeof q !== "string") {
-      return this._responseHandler.processResponse(res, {
-        success: false,
-        message: "Search query parameter 'q' is required",
-        data: null,
-      });
-    }
-
-    const result = await this._service.searchTenantsByName(q);
+    const result = await this._service.searchTenantsByName(q, dateOfBirth);
 
     this._responseHandler.processResponse(res, result);
   };
 
-  updateTenant = async (req: Request, res: Response): Promise<void> => {
+  updateTenant = async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
-    const updateData: UpdateTennantInput = req.body;
-    const result = await this._service.updateTenant(parseInt(id), updateData);
+    const updateData: UpdateTenantInput = req.body;
+    const result = await this._service.updateTenant(
+      parseInt(id),
+      updateData,
+      req.userId!
+    );
 
     this._responseHandler.processResponse(res, result);
   };
 
-  deleteTenant = async (req: Request, res: Response): Promise<void> => {
+  deleteTenant = async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
-    const result = await this._service.deleteTenant(parseInt(id));
+    const result = await this._service.deleteTenant(parseInt(id), req.userId!);
 
     this._responseHandler.processResponse(res, result);
   };

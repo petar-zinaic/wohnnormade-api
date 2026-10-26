@@ -1,1 +1,2 @@
-export { default as ExistingTennantException } from "./ExistingTennantException";
+export { default as ExistingTenantException } from "./ExistingTenantException";
+export { default as EmailAlreadyExistsException } from "./EmailAlreadyExistsException";

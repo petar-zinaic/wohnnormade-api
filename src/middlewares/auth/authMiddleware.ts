@@ -1,10 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { MissingTokenException } from "@utility/exceptions";
-
-interface AuthRequest extends Request {
-  userId?: number;
-}
+import { AuthRequest } from "@requestType";
+import envConfig from "@config/environment";
 
 export const authenticateToken = (
   req: AuthRequest,
@@ -19,11 +17,11 @@ export const authenticateToken = (
   }
 
   try {
-    const secret = process.env.JWT_SECRET || "your-default-secret-key";
-    const decoded = jwt.verify(token, secret) as { userId: number };
+    const decoded = jwt.verify(token, envConfig.auth.jwtSecret) as { userId: number };
     req.userId = decoded.userId;
-    next();
   } catch (error) {
     throw new MissingTokenException();
   }
+
+  next();
 };

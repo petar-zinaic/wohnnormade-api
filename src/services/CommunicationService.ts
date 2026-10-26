@@ -1,16 +1,21 @@
 import { randomUUID } from "crypto";
 import BaseService from "./BaseService";
-import CommunicationRepository from "../repositories/database/CommunicationRepository";
+import CommunicationRepository from "@repository/database/CommunicationRepository";
 import EmailService from "./EmailService";
 import {
   ContactReporterInput,
   ReplyToThreadInput,
-} from "../types/request/CommunicationTypes";
+} from "@requestType/CommunicationTypes";
 import {
   CommunicationResponse,
   ThreadResponse,
   ContactReporterResponse,
-} from "../types/response/CommunicationTypes";
+} from "@responseType/CommunicationTypes";
+import {
+  ForbiddenException,
+  InvalidRequestException,
+  NotFoundException,
+} from "@exceptions";
 
 export default class CommunicationService extends BaseService<CommunicationRepository> {
   private emailService: EmailService;
@@ -24,27 +29,32 @@ export default class CommunicationService extends BaseService<CommunicationRepos
     data: ContactReporterInput,
     senderId: number
   ): Promise<ContactReporterResponse> {
+    // Check if sender is trying to contact themselves
+    if (senderId === data.recipientId) {
+      throw new InvalidRequestException("Cannot contact yourself.");
+    }
+
     // Validate that the sender is a registered user
     const sender = await this._repository.getUserById(senderId);
     if (!sender) {
-      throw new Error("Sender not found");
-    }
-
-    // Validate that the recipient exists
-    const recipient = await this._repository.getUserById(data.recipientId);
-    if (!recipient) {
-      throw new Error("Recipient not found");
+      throw new NotFoundException("Sender");
     }
 
     // Validate that the tenant exists and get tenant info
     const tenant = await this._repository.getTenantById(data.tenantId);
     if (!tenant) {
-      throw new Error("Tenant not found");
+      throw new NotFoundException("Tenant");
     }
 
-    // Check if sender is trying to contact themselves
-    if (senderId === data.recipientId) {
-      throw new Error("Cannot contact yourself");
+    // Only the landlord who reported the tenant can be contacted about them
+    if (data.recipientId !== tenant.createdById) {
+      throw new InvalidRequestException("Recipient must be the tenant's reporter.");
+    }
+
+    // Validate that the recipient exists
+    const recipient = await this._repository.getUserById(data.recipientId);
+    if (!recipient) {
+      throw new NotFoundException("Recipient");
     }
 
     // Generate unique thread ID
@@ -96,7 +106,7 @@ export default class CommunicationService extends BaseService<CommunicationRepos
     // Validate that the sender is a registered user
     const sender = await this._repository.getUserById(senderId);
     if (!sender) {
-      throw new Error("Sender not found");
+      throw new NotFoundException("Sender");
     }
 
     // Check if user has access to this thread
@@ -105,13 +115,13 @@ export default class CommunicationService extends BaseService<CommunicationRepos
       senderId
     );
     if (!hasAccess) {
-      throw new Error("Access denied to this thread");
+      throw new ForbiddenException("Access denied to this thread.");
     }
 
     // Get thread info for email
     const thread = await this._repository.getThreadByThreadId(data.threadId);
     if (!thread) {
-      throw new Error("Thread not found");
+      throw new NotFoundException("Thread");
     }
 
     // Create the reply
@@ -161,12 +171,12 @@ export default class CommunicationService extends BaseService<CommunicationRepos
       userId
     );
     if (!hasAccess) {
-      throw new Error("Access denied to this thread");
+      throw new ForbiddenException("Access denied to this thread.");
     }
 
     const thread = await this._repository.getThreadByThreadId(threadId);
     if (!thread) {
-      throw new Error("Thread not found");
+      throw new NotFoundException("Thread");
     }
 
     return thread;

@@ -18,9 +18,8 @@ export interface ChangePasswordInput {
 }
 
 export interface ResetPasswordInput {
-  email: string;
+  token: string;
   newPassword: string;
-  resetToken?: string;
 }
 
 export interface ForgotPasswordInput {

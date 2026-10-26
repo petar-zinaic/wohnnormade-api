@@ -1,7 +1,7 @@
-import Nexit from "./app"; 
+import WohnnormadeApp from "./app"; 
 
 (async () => {
-    const app = new Nexit();
+    const app = new WohnnormadeApp();
 
     app.listen();
 })();

@@ -1,6 +1,7 @@
 import BaseRepository from './BaseRepository';
-import { ContactReporterInput, ReplyToThreadInput } from '../../types/request/CommunicationTypes';
-import { CommunicationResponse, ThreadResponse } from '../../types/response/CommunicationTypes';
+import { NotFoundException } from '@exceptions';
+import { ContactReporterInput, ReplyToThreadInput } from '@requestType/CommunicationTypes';
+import { CommunicationResponse, ThreadResponse } from '@responseType/CommunicationTypes';
 
 export default class CommunicationRepository extends BaseRepository {
   constructor() {
@@ -52,6 +53,7 @@ export default class CommunicationRepository extends BaseRepository {
     // First, get the original communication to get tenant and recipient info
     const originalCommunication = await this.prismaClient.landlordCommunication.findFirst({
       where: { threadId: data.threadId },
+      orderBy: { createdAt: 'asc' },
       include: {
         tenant: {
           select: {
@@ -64,7 +66,7 @@ export default class CommunicationRepository extends BaseRepository {
     });
 
     if (!originalCommunication) {
-      throw new Error('Thread not found');
+      throw new NotFoundException('Thread');
     }
 
     // Determine recipient (if sender is the original sender, recipient is original recipient, and vice versa)

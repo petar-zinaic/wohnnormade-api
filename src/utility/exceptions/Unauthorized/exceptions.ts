@@ -7,4 +7,9 @@ export default {
         message: "Authentication token was not provided.",
         internal_code: INTERNAL_CODE.MISSING_TOKEN
     },
+    [INTERNAL_CODE.INVALID_CREDENTIALS]: {
+        status: HTTP_STATUS.UNAUTHORIZED,
+        message: "Invalid email or password.",
+        internal_code: INTERNAL_CODE.INVALID_CREDENTIALS
+    },
 }

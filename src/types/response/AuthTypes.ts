@@ -2,10 +2,10 @@ export interface AuthResponse {
   user: {
     id: number;
     email: string;
-    name?: string;
-    surname?: string;
-    city?: string;
-    country?: string;
+    name: string | null;
+    surname: string | null;
+    city: string | null;
+    country: string | null;
     createdAt: Date;
   };
   token: string;

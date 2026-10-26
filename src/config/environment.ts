@@ -36,6 +36,9 @@ export default {
   database: {
     url: getEnvVariable("DATABASE_URL"),
   },
+  auth: {
+    jwtSecret: getEnvVariable("JWT_SECRET"),
+  },
   email: {
     resendApiKey: getEnvVariable("RESEND_API_KEY"),
     fromEmail: getEnvVariable("FROM_EMAIL", "noreply@wohnnormade.com"),

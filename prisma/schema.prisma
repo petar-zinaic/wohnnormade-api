@@ -18,20 +18,34 @@ model User {
   tenants               Tenant[]  @relation("UserTenants")
   sentCommunications    LandlordCommunication[] @relation("CommunicationSender")
   receivedCommunications LandlordCommunication[] @relation("CommunicationRecipient")
+  passwordResetTokens   PasswordResetToken[]
   createdAt             DateTime  @default(now())
   updatedAt             DateTime @updatedAt
 }
 
+model PasswordResetToken {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model Tenant {
   id             Int      @id @default(autoincrement())
-  name           String   @unique
-  surname        String   @unique
+  name           String
+  surname        String
   dateOfBirth    DateTime?
   violationType  String
   description    String
   city           String
   country        String
-  createdBy      User    @relation("UserTenants", fields: [createdById], references: [id])
+  createdBy      User    @relation("UserTenants", fields: [createdById], references: [id], onDelete: Cascade)
   createdById    Int
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

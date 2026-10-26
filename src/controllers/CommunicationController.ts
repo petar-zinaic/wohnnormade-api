@@ -1,72 +1,38 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import BaseController from "./BaseController";
-import CommunicationService from "../services/CommunicationService";
+import CommunicationService from "@services/CommunicationService";
+import { AuthRequest } from "@requestType";
 import {
   ContactReporterInput,
   ReplyToThreadInput,
-} from "../types/request/CommunicationTypes";
+} from "@requestType/CommunicationTypes";
 
-interface AuthRequest extends Request {
-  userId?: number;
-}
-
+// All routes run behind authenticateToken, so req.userId is always set
 export default class CommunicationController extends BaseController<CommunicationService> {
   constructor() {
     super(new CommunicationService());
   }
 
-  async contactReporter(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      if (!req.userId) {
-        throw new Error("User not authenticated");
-      }
+  contactReporter = async (req: AuthRequest, res: Response): Promise<void> => {
+    const data: ContactReporterInput = req.body;
+    const result = await this._service.contactReporter(data, req.userId!);
+    this._responseHandler.processResponse(res, result);
+  };
 
-      const data: ContactReporterInput = req.body;
-      const result = await this._service.contactReporter(data, req.userId);
-      this._responseHandler.processResponse(res, result);
-    } catch (error: any) {
-      this._responseHandler.processError(error, res);
-    }
-  }
+  replyToThread = async (req: AuthRequest, res: Response): Promise<void> => {
+    const data: ReplyToThreadInput = req.body;
+    const result = await this._service.replyToThread(data, req.userId!);
+    this._responseHandler.processResponse(res, result);
+  };
 
-  async replyToThread(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      if (!req.userId) {
-        throw new Error("User not authenticated");
-      }
+  getThread = async (req: AuthRequest, res: Response): Promise<void> => {
+    const threadId = req.params.threadId;
+    const result = await this._service.getThread(threadId, req.userId!);
+    this._responseHandler.processResponse(res, result);
+  };
 
-      const data: ReplyToThreadInput = req.body;
-      const result = await this._service.replyToThread(data, req.userId);
-      this._responseHandler.processResponse(res, result);
-    } catch (error: any) {
-      this._responseHandler.processError(error, res);
-    }
-  }
-
-  async getThread(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      if (!req.userId) {
-        throw new Error("User not authenticated");
-      }
-
-      const threadId = req.params.threadId;
-      const result = await this._service.getThread(threadId, req.userId);
-      this._responseHandler.processResponse(res, result);
-    } catch (error: any) {
-      this._responseHandler.processError(error, res);
-    }
-  }
-
-  async getUserConversations(req: AuthRequest, res: Response): Promise<void> {
-    try {
-      if (!req.userId) {
-        throw new Error("User not authenticated");
-      }
-
-      const result = await this._service.getUserConversations(req.userId);
-      this._responseHandler.processResponse(res, result);
-    } catch (error: any) {
-      this._responseHandler.processError(error, res);
-    }
-  }
+  getUserConversations = async (req: AuthRequest, res: Response): Promise<void> => {
+    const result = await this._service.getUserConversations(req.userId!);
+    this._responseHandler.processResponse(res, result);
+  };
 }

@@ -1,20 +1,141 @@
 paths:
   /users:
     get:
-      summary: Lists paginated users
+      summary: List all users
       tags: [Users]
-
-      responses: 
+      security:
+        - JWTAuth: []
+      responses:
         200:
-          description: The list of the paginated users
+          description: The list of users
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserListResponse'
+                $ref: '#/components/schemas/UserListResponse'
+        401:
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         500:
-          description: Some internal error
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        schema:
+          type: integer
+        example: 1
+    get:
+      summary: Get user by ID
+      tags: [Users]
+      security:
+        - JWTAuth: []
+      responses:
+        200:
+          description: User details with reported tenants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          description: ID is not a positive integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update your own profile
+      description: Only the logged-in user can update their own account. Unknown fields (including password) are rejected; use /auth/change-password to change the password.
+      tags: [Users]
+      security:
+        - JWTAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        200:
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          description: Validation error or unknown field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Trying to update another user's account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        409:
+          description: Email is already used by another account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete your own account
+      description: Only the logged-in user can delete their own account. Their tenant reports and message threads are deleted too.
+      tags: [Users]
+      security:
+        - JWTAuth: []
+      responses:
+        204:
+          description: User deleted
+        401:
+          description: Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Trying to delete another user's account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: User not found
           content:
             application/json:
               schema:
@@ -26,25 +147,59 @@ components:
       type: object
       properties:
         id:
-          type: string
-          description: The User ID in UUID format
-        first_name:
+          type: integer
+          description: The user ID
+        name:
           type: string
           description: The first name of the user
-        last_name:
+        surname:
           type: string
           description: The last name of the user
-        email: 
+        email:
           type: string
           description: The email of the user
-        created_at:
+        city:
           type: string
-          format: date
+        country:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
           description: The creation date of the user
-        updated_at:
+        updatedAt:
           type: string
-          format: date
-          description: The last date user was modified 
+          format: date-time
+          description: The last date user was modified
+    UpdateUserRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+          maxLength: 100
+        surname:
+          type: string
+          maxLength: 100
+        city:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+    UserResponse:
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/UserList'
+        status:
+          type: boolean
+          default: true
+        error:
+          type: object
+          default: {}
     UserListResponse:
       type: object
       properties:
