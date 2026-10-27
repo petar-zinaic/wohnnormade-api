@@ -44,4 +44,7 @@ export default {
     fromEmail: getEnvVariable("FROM_EMAIL", "noreply@wohnnormade.com"),
     clientUrl: getEnvVariable("CLIENT_URL", "http://localhost:3000"),
   },
+  captcha: {
+    turnstileSecretKey: getEnvVariable("TURNSTILE_SECRET_KEY"),
+  },
 };
