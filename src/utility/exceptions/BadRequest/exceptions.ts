@@ -22,5 +22,10 @@ export default {
     status: HTTP_STATUS.BAD_REQUEST,
     message: "Password reset token is invalid or has expired.",
     internal_code: INTERNAL_CODE.INVALID_RESET_TOKEN
+  },
+  [INTERNAL_CODE.INVALID_CAPTCHA]: {
+    status: HTTP_STATUS.BAD_REQUEST,
+    message: "Captcha verification failed. Please try again.",
+    internal_code: INTERNAL_CODE.INVALID_CAPTCHA
   }
 }

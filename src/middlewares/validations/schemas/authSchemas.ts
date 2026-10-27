@@ -11,6 +11,10 @@ export const registerSchema = Joi.object({
   surname: Joi.string().max(100).optional(),
   city: Joi.string().max(100).optional(),
   country: Joi.string().max(100).optional(),
+  captchaToken: Joi.string().max(2048).required().messages({
+    "any.required": "Captcha verification is required",
+    "string.empty": "Captcha verification is required",
+  }),
 });
 
 export const loginSchema = Joi.object({

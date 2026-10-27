@@ -4,6 +4,7 @@ export enum INTERNAL_CODE {
     REQUEST_BODY_VALIDATION = "request_body_validation",
     INVALID_QUERY = "invalid_query",
     INVALID_RESET_TOKEN = "invalid_reset_token",
+    INVALID_CAPTCHA = "invalid_captcha",
     //401 - Unauthorized
     MISSING_TOKEN = "missing_token",
     INVALID_CREDENTIALS = "invalid_credentials",

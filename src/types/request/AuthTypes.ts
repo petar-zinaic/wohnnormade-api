@@ -5,6 +5,7 @@ export interface RegisterInput {
   surname?: string;
   city?: string;
   country?: string;
+  captchaToken: string;
 }
 
 export interface LoginInput {

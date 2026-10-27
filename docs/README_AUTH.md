@@ -10,11 +10,15 @@ This API provides authentication functionality with the following endpoints:
    DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
    JWT_SECRET="<long random string>"
    CLIENT_URL="http://localhost:3000"
+   TURNSTILE_SECRET_KEY="<Cloudflare Turnstile secret key>"
    ```
 
    `JWT_SECRET` is required: the app refuses to start without it. Generate one with
    `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`.
    `CLIENT_URL` is used for the links in emails (reset password, message threads).
+   `TURNSTILE_SECRET_KEY` is required and verifies the sign-up captcha. Locally use Cloudflare's
+   test secret `1x0000000000000000000000000000000AA` (always passes); in production use the
+   secret key from Cloudflare dashboard → Turnstile.
 
 2. **Database Migration**: Run Prisma migrations to create the User table:
    ```bash
@@ -37,9 +41,13 @@ Register a new user account.
 ```json
 {
   "email": "user@example.com",
-  "password": "password123"
+  "password": "password123",
+  "captchaToken": "<Cloudflare Turnstile token>"
 }
 ```
+
+`captchaToken` comes from the Turnstile widget on the sign-up form. It is checked with
+Cloudflare before the account is created; an invalid or reused token returns `400 invalid_captcha`.
 
 **Response:**
 
@@ -186,6 +194,7 @@ Error codes used by the auth and user endpoints:
 | ---- | --------------- | ---- |
 | 400 | `request_body_validation` | Invalid input data or unknown fields |
 | 400 | `invalid_reset_token` | Reset token unknown, expired or already used |
+| 400 | `invalid_captcha` | Sign-up captcha token missing, invalid or already used |
 | 401 | `missing_token` | Missing or invalid JWT |
 | 401 | `invalid_credentials` | Wrong email/password, or wrong current password |
 | 403 | `forbidden` | Changing another user's account |

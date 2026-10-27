@@ -20,11 +20,13 @@ import {
 } from "@responseType/AuthTypes";
 import {
   EmailAlreadyExistsException,
+  InvalidCaptchaException,
   InvalidCredentialsException,
   InvalidResetTokenException,
   NotFoundException,
 } from "@exceptions";
 import envConfig from "@config/environment";
+import { verifyTurnstileToken } from "@utility/helpers/captchaHelper";
 
 const SALT_ROUNDS = 10;
 const RESET_TOKEN_TTL_MINUTES = 60;
@@ -40,6 +42,12 @@ export default class AuthService extends BaseService<UserRepository> {
   }
 
   async register(data: RegisterInput): Promise<RegisterResponse> {
+    // Reject bots before touching the database
+    const isHuman = await verifyTurnstileToken(data.captchaToken);
+    if (!isHuman) {
+      throw new InvalidCaptchaException();
+    }
+
     // Check if user already exists
     const existingUser = await this._repository.findUserByEmail(data.email);
     if (existingUser) {
